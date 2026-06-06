@@ -1,16 +1,14 @@
 # Variables
 NAME          = inception
 COMPOSE_FILE  = srcs/docker-compose.yml
-DATA_DIR      = /home/hassende/data
+DATA_DIR      = /home/asendar1/data
 
 all: setup build up
 
 setup:
 	@echo "Configuring persistent host storage layer directories..."
-	@sudo mkdir -p $(DATA_DIR)/mariadb
-	@sudo mkdir -p $(DATA_DIR)/wordpress
-	@sudo chmod 777 $(DATA_DIR)/mariadb
-	@sudo chmod 777 $(DATA_DIR)/wordpress
+	@mkdir -p $(DATA_DIR)/mariadb
+	@mkdir -p $(DATA_DIR)/wordpress
 
 build:
 	@echo "Building the multi-container"

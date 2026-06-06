@@ -6,6 +6,10 @@ if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
 	echo "First run detected: init wp setup"
 
 
+	MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+	WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+	WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
+
 	echo "Waiting for mariadb to be ready..."
 	while ! mysqladmin ping -h"mariadb" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" --silent; do
 		sleep 2
@@ -39,6 +43,14 @@ if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
 		--role=author \
 		--path="/var/www/wordpress" \
 		--allow-root
+
+	# setup redis, download the plugin and then enable it
+	php83 -d memory_limit=512M /usr/local/bin/wp config set WP_REDIS_HOST "redis" --path="/var/www/wordpress" --allow-root
+	php83 -d memory_limit=512M /usr/local/bin/wp config set WP_REDIS_PORT 6379 --raw --path="/var/www/wordpress" --allow-root
+
+	php83 -d memory_limit=512M /usr/local/bin/wp plugin install redis-cache --activate --path="/var/www/wordpress" --allow-root
+
+	php83 -d memory_limit=512M /usr/local/bin/wp redis enable --path="/var/www/wordpress" --allow-root
 
 	echo "WordPress deployment completed successfully."
 fi

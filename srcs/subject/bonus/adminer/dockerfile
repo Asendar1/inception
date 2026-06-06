@@ -1,14 +1,14 @@
 FROM alpine:3.22
 
 RUN apk update && apk add --no-cache \
-    php83 \
-    php83-mysqli \
-    wget
+	php83 \
+	php83-mysqli \
+	php83-session \
+	wget
 
 RUN mkdir -p /var/www/adminer
 
-RUN wget "https://github.com/vrana/adminer/releases/download/v5.4.2/adminer-5.4.2.php" \
-    -O /var/www/adminer/index.php
+RUN wget "https://github.com/vrana/adminer/releases/download/v5.4.2/adminer-5.4.2.php" -O /var/www/adminer/index.php
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

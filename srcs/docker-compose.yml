@@ -12,6 +12,9 @@ services:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception_network
+    secrets:
+      - db_password
+      - db_root_password
 
   wordpress:
     depends_on:
@@ -28,6 +31,10 @@ services:
       - wordpress_data:/var/www/wordpress
     networks:
       - inception_network
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_user_password
 
   nginx:
     depends_on:
@@ -47,6 +54,77 @@ services:
     networks:
       - inception_network
 
+  adminer:
+    depends_on:
+      - mariadb
+    build:
+      context: ./subject/bonus/adminer
+      dockerfile: Dockerfile
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - inception_network
+  redis:
+    build:
+      context: ./subject/bonus/redis
+      dockerfile: Dockerfile
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - inception_network
+
+  static-site:
+    build:
+      context: ./subject/bonus/static-site
+      dockerfile: Dockerfile
+    image: static-site
+    container_name: static-site
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - inception_network
+
+  mailpit:
+    build:
+      context: ./subject/bonus/mailpit
+      dockerfile: Dockerfile
+    image: mailpit
+    container_name: mailpit
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - inception_network
+
+  ftp:
+    depends_on:
+      - wordpress
+    build:
+      context: ./subject/bonus/ftp
+      dockerfile: Dockerfile
+    image: ftp
+    container_name: ftp
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "21:21"
+      - "30000-30005:30000-30005"
+    volumes:
+      - wordpress_data:/var/www/wordpress
+    networks:
+      - inception_network
+    secrets:
+      - ftp_password
+
 networks:
   inception_network:
     driver: bridge
@@ -54,14 +132,18 @@ networks:
 volumes:
   mariadb_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/asendar1/data/mariadb
 
   wordpress_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/asendar1/data/wordpress
+
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  wp_user_password:
+    file: ../secrets/wp_user_password.txt
+  ftp_password:
+    file: ../secrets/ftp_password.txt

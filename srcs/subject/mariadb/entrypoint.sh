@@ -13,7 +13,9 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 
 	sleep 3 # sleep for the server to start and stop the sh to executre mysql -e commands before its ready
 
-	# this will come from the .env file
+	MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+	MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
 	mysql -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
 	mysql -e "CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
 	mysql -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%';"
