@@ -1,7 +1,7 @@
 # Variables
 NAME          = inception
 COMPOSE_FILE  = srcs/docker-compose.yml
-DATA_DIR      = /home/asendar1/data
+DATA_DIR      = /home/hassende/data
 
 all: setup build up
 
